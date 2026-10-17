@@ -1,8 +1,29 @@
-"""МКР OBDZ-MKR02. Завдання 01: Клієнти, які купували напої та молочні вироби, але не купували побутову хімію.
-
-Умова — у картці завдання 1 файла student.md."""
-
-
 def query() -> str:
-    """Повертає текст одного запиту SELECT (без зайвих команд)."""
-    raise NotImplementedError  # TODO: реалізуйте за карткою
+    return """
+    SELECT c.id, c.full_name
+    FROM customer c
+    JOIN purchase p ON p.customer_id = c.id
+    JOIN product pr ON pr.id = p.product_id
+    JOIN category cat ON cat.id = pr.category_id
+    WHERE cat.name = 'Напої'
+
+    INTERSECT
+
+    SELECT c.id, c.full_name
+    FROM customer c
+    JOIN purchase p ON p.customer_id = c.id
+    JOIN product pr ON pr.id = p.product_id
+    JOIN category cat ON cat.id = pr.category_id
+    WHERE cat.name = 'Молочні вироби'
+
+    EXCEPT
+
+    SELECT c.id, c.full_name
+    FROM customer c
+    JOIN purchase p ON p.customer_id = c.id
+    JOIN product pr ON pr.id = p.product_id
+    JOIN category cat ON cat.id = pr.category_id
+    WHERE cat.name = 'Побутова хімія'
+
+    ORDER BY id;
+    """

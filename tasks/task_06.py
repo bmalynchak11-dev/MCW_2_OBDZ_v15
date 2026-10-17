@@ -1,8 +1,17 @@
-"""МКР OBDZ-MKR02. Завдання 06: Архівація доставлених покупок одним оператором WITH ... DELETE ... RETURNING ... INSERT.
-
-Умова — у картці завдання 6 файла student.md."""
-
-
 def statement() -> str:
-    """Повертає текст однієї команди SQL (одна команда, без «;» посередині)."""
-    raise NotImplementedError  # TODO: реалізуйте за карткою
+    return """
+    WITH deleted_purchases AS (
+        DELETE FROM purchase
+        WHERE shipped_on IS NOT NULL 
+          AND ordered_on < DATE '2024-07-01'
+        RETURNING id, customer_id, product_id, quantity, ordered_on, shipped_on
+    ),
+    inserted_archive AS (
+        INSERT INTO purchase_archive (id, customer_id, product_id, quantity, ordered_on, shipped_on)
+        SELECT id, customer_id, product_id, quantity, ordered_on, shipped_on
+        FROM deleted_purchases
+        RETURNING id
+    )
+    INSERT INTO archive_log (moved)
+    SELECT COUNT(*) FROM inserted_archive;
+    """
